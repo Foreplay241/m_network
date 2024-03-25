@@ -1,5 +1,5 @@
 import socket
-import sys
+import threading
 
 
 class MServer:
@@ -9,10 +9,16 @@ class MServer:
         self.start_simple_server(host, port)
         self.client_socket = None
         self.client_address = None
-        running = True
-        while running:
-            self.receive_connection()
-            print(self.receive_data())
+
+        recv_thread = threading.Thread(target=self.receive_data, args=())
+        send_thread = threading.Thread(target=self.send_data, args=())
+        connection_thread = threading.Thread(target=self.receive_connection, args=(False, ))
+        recv_thread.start()
+        send_thread.start()
+        connection_thread.start()
+        recv_thread.join()
+        send_thread.join()
+        connection_thread.join()
 
     def start_simple_server(self, host='', port=840, max_clients=5):
         self.server_socket.bind((host, port))
@@ -24,13 +30,16 @@ class MServer:
         self.client_socket, self.client_address = self.server_socket.accept()
         print(f"Got a connection from {self.client_address}.")
         self.connected_addresses_dict[self.client_socket] = self.client_address
-        self.send_greeting()
 
-    def send_greeting(self):
-        self.send_data("Welcome! Welcome, to the server of Foreplay!")
-
-    def send_data(self, data):
-        self.client_socket.sendall(data.encode())
+    def send_data(self):
+        while True:
+            message = str(input("What you wanna say about that? _"))
+            self.client_socket.sendall(message.encode())
 
     def receive_data(self):
-        return self.client_socket.recv(1024).decode()
+        while True:
+            data = self.server_socket.recv(1024)
+            if not data:
+                break
+            print(f"{self.client_address}:" + data.decode())
+
