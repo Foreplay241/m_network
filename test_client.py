@@ -1,11 +1,13 @@
+import time
 import socket
 import subprocess
 import threading
 
 
 class MClient:
-    def __init__(self, host='10.53.2.41', port=840):
+    def __init__(self, host='0.0.0.0', port=840):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print(host, port)
         self.client_socket.connect((host, port))
         self.server_socket = None
         self.server_address = None
@@ -35,4 +37,5 @@ class MClient:
 
 
 if __name__ == '__main__':
-    client = MClient()
+    client = MClient(host=str(input("What host would you like? >")),
+                     port=int(input("What port would you like? >")))
