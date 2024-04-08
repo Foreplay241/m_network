@@ -5,19 +5,15 @@ import threading
 
 
 class MClient:
-    def __init__(self, host='0.0.0.0', port=840):
+    def __init__(self, host='10.53.0.101', port=840):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print(host, port)
         self.client_socket.connect((host, port))
         self.server_socket = None
         self.server_address = None
 
-        recv_thread = threading.Thread(target=self.receive_data, args=())
-        send_thread = threading.Thread(target=self.send_data, args=())
-        recv_thread.start()
-        send_thread.start()
-        recv_thread.join()
-        send_thread.join()
+        threading.Thread(target=self.receive_data, args=(), daemon=True).start()
+        threading.Thread(target=self.send_data, args=(), daemon=True).start()
 
     def send_data(self):
         while True:
@@ -37,5 +33,6 @@ class MClient:
 
 
 if __name__ == '__main__':
-    client = MClient(host=str(input("What host would you like? >")),
-                     port=int(input("What port would you like? >")))
+    # client = MClient(host=str(input("What host would you like? >")),
+    #                  port=int(input("What port would you like? >")))
+    client = MClient()
